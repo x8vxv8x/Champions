@@ -87,10 +87,16 @@ public class AffixFilterManager {
     }
 
     public static void readAffixFiltersFromJson() {
-        AffixFilter[] filters = JsonUtil.fromJson(TypeToken.get(AffixFilter[].class), new File(Loader.instance()
-                .getConfigDir(), Champions.MODID + "/affixes.json"), buildDefaultAffixFilters());
+        File file = new File(Loader.instance().getConfigDir(), Champions.MODID + "/affixes.json");
+        TypeToken<AffixFilter[]> token = TypeToken.get(AffixFilter[].class);
+        AffixFilter[] defaults = buildDefaultAffixFilters();
+        AffixFilter[] filters = mergeMissingAffixFilters(JsonUtil.fromJson(token, file, defaults), defaults, file,
+                token);
 
         for (AffixFilter filter : filters) {
+            if (filter == null) {
+                continue;
+            }
             FILTERS.put(filter.getIdentifier(), filter);
             String[] alwaysOn = filter.getAlwaysOnEntity();
 
@@ -100,6 +106,36 @@ public class AffixFilterManager {
                 ENTITY_AFFIX_MAP.putIfAbsent(entityName, affixes);
             }
         }
+    }
+
+    private static AffixFilter[] mergeMissingAffixFilters(@Nullable AffixFilter[] filters, AffixFilter[] defaults,
+                                                          File file, TypeToken<AffixFilter[]> token) {
+        List<AffixFilter> merged = Lists.newArrayList();
+        Set<String> existingIds = Sets.newHashSet();
+
+        if (filters != null) {
+            for (AffixFilter filter : filters) {
+                if (filter != null) {
+                    merged.add(filter);
+                    existingIds.add(filter.getIdentifier());
+                }
+            }
+        }
+        boolean changed = false;
+
+        for (AffixFilter filter : defaults) {
+            if (!existingIds.contains(filter.getIdentifier())) {
+                merged.add(filter);
+                changed = true;
+            }
+        }
+
+        AffixFilter[] result = merged.toArray(new AffixFilter[0]);
+
+        if (changed) {
+            JsonUtil.toJson(token, file, result);
+        }
+        return result;
     }
 
     private static AffixFilter[] buildDefaultAffixFilters() {

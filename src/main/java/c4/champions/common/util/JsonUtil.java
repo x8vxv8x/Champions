@@ -55,7 +55,7 @@ public class JsonUtil {
         }
     }
 
-    private static <T> void toJson(@Nonnull TypeToken<T[]> token, @Nonnull File file, @Nonnull T[] defaults) {
+    public static <T> void toJson(@Nonnull TypeToken<T[]> token, @Nonnull File file, @Nonnull T[] defaults) {
 
         if (!file.exists()) {
             try {
