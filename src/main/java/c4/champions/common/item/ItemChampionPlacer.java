@@ -21,9 +21,6 @@ package c4.champions.common.item;
 
 import c4.champions.Champions;
 import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.IAffix;
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
 import c4.champions.common.rank.Rank;
 import c4.champions.common.rank.RankManager;
 import c4.champions.common.util.ChampionHelper;
@@ -237,43 +234,19 @@ public class ItemChampionPlacer extends Item {
                 if (!entityWorld.isRemote && (player == null || !minecraftserver.getPlayerList().canSendCommands(player.getGameProfile()))) {
                     return;
                 }
-                IChampionship chp = CapabilityChampionship.getChampionship(targetEntity);
+                NBTTagCompound compound = nbttagcompound.getCompoundTag("ChampionInfo");
+                Rank rank = RankManager.getRankForTier(compound.getInteger("tier"));
+                Set<String> affixes = Sets.newHashSet();
+                NBTTagList tagList = compound.getTagList("affixes", Constants.NBT.TAG_STRING);
 
-                if (chp != null) {
-                    NBTTagCompound compound = nbttagcompound.getCompoundTag("ChampionInfo");
-                    Rank rank = RankManager.getRankForTier(compound.getInteger("tier"));
-                    chp.setRank(rank);
+                for (int i = 0; i < tagList.tagCount(); i++) {
+                    String affix = tagList.getStringTagAt(i);
 
-                    if (rank.getTier() > 0) {
-
-                        Set<String> affixes = Sets.newHashSet();
-                        NBTTagList tagList = compound.getTagList("affixes", Constants.NBT.TAG_STRING);
-
-                        for (int i = 0; i < tagList.tagCount(); i++) {
-                            String affix = tagList.getStringTagAt(i);
-
-                            if (AffixRegistry.getAffix(affix) != null) {
-                                affixes.add(affix);
-                            }
-                        }
-
-                        if (affixes.isEmpty()) {
-                            chp.setAffixes(ChampionHelper.generateAffixes(rank, targetEntity));
-                        } else {
-                            chp.setAffixes(affixes);
-                        }
-                        chp.setName(ChampionHelper.generateRandomName());
-                        chp.getRank().applyGrowth(targetEntity);
-
-                        for (String s : chp.getAffixes()) {
-                            IAffix affix = AffixRegistry.getAffix(s);
-
-                            if (affix != null) {
-                                affix.onInitialSpawn(targetEntity, chp);
-                            }
-                        }
+                    if (AffixRegistry.getAffix(affix) != null) {
+                        affixes.add(affix);
                     }
                 }
+                ChampionHelper.applyChampionData(targetEntity, rank, affixes);
             }
         }
     }

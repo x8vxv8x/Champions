@@ -21,11 +21,7 @@ package c4.champions.command;
 
 import c4.champions.Champions;
 import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.IAffix;
 import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
-import c4.champions.common.rank.Rank;
 import c4.champions.common.rank.RankManager;
 import c4.champions.common.util.ChampionHelper;
 import com.google.common.collect.Sets;
@@ -112,33 +108,7 @@ public class CommandSpawnChampion extends CommandBase {
     World world = sender.getEntityWorld();
     BlockPos pos = sender.getPosition();
     living.setPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d);
-    IChampionship chp = CapabilityChampionship.getChampionship(living);
-
-    if (chp != null) {
-      Rank rank = RankManager.getRankForTier(tier);
-      chp.setRank(rank);
-
-      if (rank.getTier() > 0) {
-
-        if (argAffix.isEmpty()) {
-          Set<String> affixes = ChampionHelper.generateAffixes(rank, living);
-          chp.setAffixes(affixes);
-        } else {
-          chp.setAffixes(argAffix);
-        }
-
-        chp.setName(ChampionHelper.generateRandomName());
-        chp.getRank().applyGrowth(living);
-
-        for (String s : chp.getAffixes()) {
-          IAffix affix = AffixRegistry.getAffix(s);
-
-          if (affix != null) {
-            affix.onInitialSpawn(living, chp);
-          }
-        }
-      }
-    }
+    ChampionHelper.applyChampionData(living, RankManager.getRankForTier(tier), argAffix);
 
     living.onInitialSpawn(world.getDifficultyForLocation(pos), null);
     world.spawnEntity(living);

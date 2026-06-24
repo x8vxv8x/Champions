@@ -83,11 +83,8 @@ public class AffixInfested extends AffixBase {
             if (source.getTrueSource() instanceof EntityLivingBase) {
                 target = (EntityLivingBase) source.getTrueSource();
             }
-            boolean isEnder = false;
+            boolean isEnder = entity instanceof EntityEnderman || entity instanceof EntityShulker || entity instanceof EntityEndermite || entity instanceof EntityDragon;
 
-            if (entity instanceof EntityEnderman || entity instanceof EntityShulker || entity instanceof EntityEndermite || entity instanceof EntityDragon) {
-                isEnder = true;
-            }
             List<EntityLiving> parasites = spawnParasites(entity.world, entity.getPosition(), buffer.num, isEnder);
 
             for (EntityLiving en : parasites) {
@@ -154,11 +151,8 @@ public class AffixInfested extends AffixBase {
 
                     if (this.attackTime <= 0 && buffer.num > 0) {
                         this.attackTime = ConfigHandler.affix.desecrator.attackInterval + entity.getRNG().nextInt(5) * 10;
-                        boolean isEnder = false;
+                        boolean isEnder = entity instanceof EntityEnderman || entity instanceof EntityShulker || entity instanceof EntityEndermite || entity instanceof EntityDragon;
 
-                        if (entity instanceof EntityEnderman || entity instanceof EntityShulker || entity instanceof EntityEndermite || entity instanceof EntityDragon) {
-                            isEnder = true;
-                        }
                         List<EntityLiving> parasites = spawnParasites(entity.world, entity.getPosition(),
                                 ConfigHandler.affix.infested.silverfishAmount, isEnder);
 

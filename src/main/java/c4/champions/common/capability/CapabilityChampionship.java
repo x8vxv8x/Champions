@@ -20,8 +20,6 @@
 package c4.champions.common.capability;
 
 import c4.champions.Champions;
-import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.IAffix;
 import c4.champions.common.affix.filter.AffixFilter;
 import c4.champions.common.affix.filter.AffixFilterManager;
 import c4.champions.common.config.ConfigHandler;
@@ -33,7 +31,6 @@ import c4.champions.network.NetworkHandler;
 import c4.champions.network.PacketSyncAffix;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -209,22 +206,7 @@ public final class CapabilityChampionship {
 
                 if (chp != null && chp.getRank() == null) {
                     Rank rank = ChampionHelper.generateRank(living);
-                    chp.setRank(rank);
-
-                    if (rank.getTier() > 0) {
-                        Set<String> affixes = ChampionHelper.generateAffixes(rank, living);
-                        chp.setAffixes(affixes);
-                        chp.setName(ChampionHelper.generateRandomName());
-                        chp.getRank().applyGrowth(living);
-
-                        for (String s : chp.getAffixes()) {
-                            IAffix affix = AffixRegistry.getAffix(s);
-
-                            if (affix != null) {
-                                affix.onInitialSpawn(living, chp);
-                            }
-                        }
-                    }
+                    ChampionHelper.applyChampionData(living, rank);
                 }
             }
         }
@@ -251,22 +233,7 @@ public final class CapabilityChampionship {
 
                     if (chp.getRank() == null) {
                         Rank rank = ChampionHelper.generateRank(living);
-                        chp.setRank(rank);
-
-                        if (rank.getTier() > 0) {
-                            Set<String> affixes = ChampionHelper.generateAffixes(rank, living);
-                            chp.setAffixes(affixes);
-                            chp.setName(ChampionHelper.generateRandomName());
-                            chp.getRank().applyGrowth(living);
-
-                            for (String s : chp.getAffixes()) {
-                                IAffix affix = AffixRegistry.getAffix(s);
-
-                                if (affix != null) {
-                                    affix.onInitialSpawn(living, chp);
-                                }
-                            }
-                        }
+                        ChampionHelper.applyChampionData(living, rank);
                     }
                 }
             }

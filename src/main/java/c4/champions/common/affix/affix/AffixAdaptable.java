@@ -40,7 +40,7 @@ public class AffixAdaptable extends AffixBase {
         DamageType damageType = AffixNBT.getData(cap, this.getIdentifier(), DamageType.class);
 
         if (damageType.name.equalsIgnoreCase(type)) {
-            newAmount -= amount * ConfigHandler.affix.adaptable.damageReductionIncrement * damageType.count;
+            newAmount -= (float) (amount * ConfigHandler.affix.adaptable.damageReductionIncrement * damageType.count);
             damageType.count++;
         } else {
             damageType.name = type;

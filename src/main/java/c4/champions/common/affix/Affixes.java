@@ -39,39 +39,29 @@ import c4.champions.common.affix.core.AffixBase;
 
 public class Affixes {
 
-    public static AffixBase shielding;
-    public static AffixBase molten;
-    public static AffixBase reflecting;
-    public static AffixBase vortex;
-    public static AffixBase dampening;
-    public static AffixBase infested;
-    public static AffixBase jailer;
-    public static AffixBase arctic;
-    public static AffixBase desecrator;
-    public static AffixBase hasty;
-    public static AffixBase lively;
-    public static AffixBase plagued;
-    public static AffixBase adaptable;
-    public static AffixBase scrapper;
-    public static AffixBase knockback;
-    public static AffixBase cinder;
-
     public static void registerAffixes() {
-        molten = new AffixMolten();
-        shielding = new AffixShielding();
-        reflecting = new AffixReflecting();
-        vortex = new AffixVortex();
-        dampening = new AffixDampening();
-        infested = new AffixInfested();
-        jailer = new AffixJailer();
-        arctic = new AffixArctic();
-        desecrator = new AffixDesecrator();
-        hasty = new AffixHasty();
-        lively = new AffixLively();
-        plagued = new AffixPlagued();
-        adaptable = new AffixAdaptable();
-        scrapper = new AffixScrapper();
-        knockback = new AffixKnockback();
-        cinder = new AffixCinder();
+        register(
+                new AffixMolten(),
+                new AffixShielding(),
+                new AffixReflecting(),
+                new AffixVortex(),
+                new AffixDampening(),
+                new AffixInfested(),
+                new AffixJailer(),
+                new AffixArctic(),
+                new AffixDesecrator(),
+                new AffixHasty(),
+                new AffixLively(),
+                new AffixPlagued(),
+                new AffixAdaptable(),
+                new AffixScrapper(),
+                new AffixKnockback(),
+                new AffixCinder());
+    }
+
+    private static void register(AffixBase... affixes) {
+        for (AffixBase affix : affixes) {
+            AffixRegistry.registerAffix(affix);
+        }
     }
 }

@@ -36,7 +36,23 @@ public class AffixRegistry {
     private static final Map<String, AffixBase> affixMap = Maps.newHashMap();
     private static final Map<AffixCategory, Set<String>> categoryMap = Maps.newEnumMap(AffixCategory.class);
 
+    public static void registerAffix(AffixBase affix) {
+        if (affix == null) {
+            throw new IllegalArgumentException("Cannot register null affix");
+        }
+        registerAffix(affix.getIdentifier(), affix);
+    }
+
     public static void registerAffix(String identifier, AffixBase affix) {
+        if (identifier == null || identifier.isEmpty()) {
+            throw new IllegalArgumentException("Affix identifier cannot be null or empty");
+        }
+        if (affix == null) {
+            throw new IllegalArgumentException("Cannot register null affix for identifier " + identifier);
+        }
+        if (affixMap.containsKey(identifier)) {
+            throw new IllegalArgumentException("Duplicate affix identifier: " + identifier);
+        }
         affixMap.put(identifier, affix);
         categoryMap.computeIfAbsent(affix.getCategory(), k -> Sets.newHashSet()).add(identifier);
     }

@@ -24,6 +24,8 @@ import c4.champions.common.affix.AffixRegistry;
 import c4.champions.common.affix.core.AffixBase;
 import c4.champions.common.affix.core.AffixCategory;
 import c4.champions.common.affix.filter.AffixFilterManager;
+import c4.champions.common.capability.CapabilityChampionship;
+import c4.champions.common.capability.IChampionship;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.potion.PotionPlague;
 import c4.champions.common.rank.Rank;
@@ -44,6 +46,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.smd.scalinghealth.api.ScalingHealthAPI;
+import javax.annotation.Nullable;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -122,7 +125,7 @@ public class ChampionHelper {
                 if (Champions.isScalingHealthLoaded) {
                     double modifier = ChampionDifficulty.getSpawnModifier(tier);
                     double difficulty = ScalingHealthAPI.getAreaDifficulty(entityLivingIn.world, entityLivingIn.getPosition());
-                    chance += modifier * difficulty;
+                    chance += (float) (modifier * difficulty);
                 }
 
                 if (rand.nextFloat() < chance) {
@@ -276,6 +279,39 @@ public class ChampionHelper {
             }
         }
         return affixList;
+    }
+
+    public static void applyChampionData(EntityLiving living, Rank rank) {
+        applyChampionData(living, rank, null);
+    }
+
+    public static void applyChampionData(EntityLiving living, Rank rank, @Nullable Set<String> affixes) {
+        IChampionship chp = CapabilityChampionship.getChampionship(living);
+
+        if (chp == null || rank == null) {
+            return;
+        }
+        chp.setRank(rank);
+
+        if (rank.getTier() <= 0) {
+            return;
+        }
+
+        if (affixes == null || affixes.isEmpty()) {
+            chp.setAffixes(generateAffixes(rank, living));
+        } else {
+            chp.setAffixes(Sets.newHashSet(affixes));
+        }
+        chp.setName(generateRandomName());
+        rank.applyGrowth(living);
+
+        for (String s : chp.getAffixes()) {
+            AffixBase affix = AffixRegistry.getAffix(s);
+
+            if (affix != null) {
+                affix.onInitialSpawn(living, chp);
+            }
+        }
     }
 
     public static boolean isElite(Rank rank) {

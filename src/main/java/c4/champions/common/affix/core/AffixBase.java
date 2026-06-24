@@ -19,7 +19,6 @@
 
 package c4.champions.common.affix.core;
 
-import c4.champions.common.affix.AffixRegistry;
 import c4.champions.common.affix.IAffix;
 import c4.champions.common.capability.IChampionship;
 import c4.champions.common.config.ConfigHandler;
@@ -49,7 +48,6 @@ public abstract class AffixBase implements IAffix {
         this.identifier = identifier;
         this.category = category;
         this.tier = tier;
-        AffixRegistry.registerAffix(identifier, this);
     }
 
     @Override
