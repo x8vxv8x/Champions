@@ -40,6 +40,10 @@ public class ConfigHandler {
     @Comment("Set whether to hide champion particles only.")
     public static boolean hideParticles = false;
 
+    @Name("Including neutral creatures")
+    @Comment("Make neutral creatures to champions.")
+    public static boolean includeNeutral = false;
+
     @Name("Champions from Spawners")
     @Comment("Set whether champions can spawn from mob spawners")
     public static boolean championSpawners = false;
