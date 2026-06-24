@@ -173,7 +173,7 @@ public class AffixEvents {
                     AffixBase affix = AffixRegistry.getAffix(aff);
 
                     if (affix != null) {
-                        newAmount = affix.onHurt(living, chp, evt.getSource(), amount, newAmount);
+                        newAmount = affix.onHurt(living, chp, evt.getSource(), amount, newAmount, evt);
                     }
                 }
                 evt.setAmount(newAmount);
@@ -197,7 +197,7 @@ public class AffixEvents {
                     AffixBase affix = AffixRegistry.getAffix(aff);
 
                     if (affix != null) {
-                        newAmount = affix.onDamaged(living, chp, evt.getSource(), amount, newAmount);
+                        newAmount = affix.onDamaged(living, chp, evt.getSource(), amount, newAmount, evt);
                     }
                 }
                 evt.setAmount(newAmount);

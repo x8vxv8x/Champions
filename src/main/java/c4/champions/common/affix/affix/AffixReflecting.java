@@ -55,7 +55,7 @@ public class AffixReflecting extends AffixBase {
 
   @Override
   public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount,
-      float newAmount) {
+      float newAmount, LivingDamageEvent evt) {
 
     if (source.getTrueSource() instanceof EntityLivingBase) {
       EntityLivingBase entityLivingBase = (EntityLivingBase) source.getTrueSource();

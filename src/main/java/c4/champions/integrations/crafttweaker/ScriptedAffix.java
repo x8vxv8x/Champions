@@ -24,13 +24,17 @@ import c4.champions.common.affix.core.AffixCategory;
 import c4.champions.common.capability.IChampionship;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.mc1120.events.handling.MCEntityLivingAttackedEvent;
+import crafttweaker.mc1120.events.handling.MCEntityLivingDamageEvent;
 import crafttweaker.mc1120.events.handling.MCEntityLivingDeathEvent;
+import crafttweaker.mc1120.events.handling.MCEntityLivingHurtEvent;
 import crafttweaker.mc1120.events.handling.MCLivingKnockBackEvent;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
 class ScriptedAffix extends AffixBase {
@@ -102,15 +106,17 @@ class ScriptedAffix extends AffixBase {
     }
 
     @Override
-    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                        LivingHurtEvent evt) {
         return onHurt == null ? newAmount : onHurt.handle(CraftTweakerMC.getIEntityLiving(entity),
-                CraftTweakerMC.getIDamageSource(source), amount, newAmount);
+                CraftTweakerMC.getIDamageSource(source), amount, newAmount, new MCEntityLivingHurtEvent(evt));
     }
 
     @Override
-    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                           LivingDamageEvent evt) {
         return onDamaged == null ? newAmount : onDamaged.handle(CraftTweakerMC.getIEntityLiving(entity),
-                CraftTweakerMC.getIDamageSource(source), amount, newAmount);
+                CraftTweakerMC.getIDamageSource(source), amount, newAmount, new MCEntityLivingDamageEvent(evt));
     }
 
     @Override

@@ -25,7 +25,9 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
 public interface IAffix {
@@ -45,11 +47,13 @@ public interface IAffix {
 
     void onAttacked(EntityLiving entity, IChampionship cap, DamageSource source, float amount, LivingAttackEvent evt);
 
-    float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount);
+    float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                 LivingHurtEvent evt);
 
     float onHealed(EntityLiving entity, IChampionship cap, float amount, float newAmount);
 
-    float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount);
+    float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                    LivingDamageEvent evt);
 
     void onDeath(EntityLiving entity, IChampionship cap, DamageSource source, LivingDeathEvent evt);
 

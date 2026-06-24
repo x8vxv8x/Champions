@@ -29,7 +29,9 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
 public abstract class AffixBase implements IAffix {
@@ -87,12 +89,14 @@ public abstract class AffixBase implements IAffix {
     }
 
     @Override
-    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                        LivingHurtEvent evt) {
         return newAmount;
     }
 
     @Override
-    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                           LivingDamageEvent evt) {
         return newAmount;
     }
 

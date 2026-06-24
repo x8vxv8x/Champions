@@ -26,6 +26,7 @@ import c4.champions.common.capability.IChampionship;
 import c4.champions.common.config.ConfigHandler;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 
 public class AffixLively extends AffixBase {
 
@@ -57,10 +58,11 @@ public class AffixLively extends AffixBase {
     }
 
     @Override
-    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                           LivingDamageEvent evt) {
         AffixNBT.Integer lastAttackTime = AffixNBT.getData(cap, this.getIdentifier(), AffixNBT.Integer.class);
         lastAttackTime.num = (int)entity.world.getTotalWorldTime();
         lastAttackTime.saveData(entity);
-        return super.onDamaged(entity, cap, source, amount, newAmount);
+        return super.onDamaged(entity, cap, source, amount, newAmount, evt);
     }
 }

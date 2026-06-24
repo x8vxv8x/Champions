@@ -24,7 +24,9 @@ import crafttweaker.api.damage.IDamageSource;
 import crafttweaker.api.entity.IEntityLiving;
 import crafttweaker.api.entity.IEntityLivingBase;
 import crafttweaker.api.event.EntityLivingAttackedEvent;
+import crafttweaker.api.event.EntityLivingDamageEvent;
 import crafttweaker.api.event.EntityLivingDeathEvent;
+import crafttweaker.api.event.EntityLivingHurtEvent;
 import crafttweaker.api.event.LivingKnockBackEvent;
 import stanhebben.zenscript.annotations.ZenClass;
 
@@ -66,7 +68,8 @@ public final class ScriptedAffixFunctions {
     @ZenClass("mods.champions.affix.OnHurt")
     @ZenRegister
     public interface OnHurt {
-        float handle(IEntityLiving living, IDamageSource source, float amount, float newAmount);
+        float handle(IEntityLiving living, IDamageSource source, float amount, float newAmount,
+                     EntityLivingHurtEvent event);
     }
 
     @ZenClass("mods.champions.affix.OnHealed")
@@ -78,7 +81,8 @@ public final class ScriptedAffixFunctions {
     @ZenClass("mods.champions.affix.OnDamaged")
     @ZenRegister
     public interface OnDamaged {
-        float handle(IEntityLiving living, IDamageSource source, float amount, float newAmount);
+        float handle(IEntityLiving living, IDamageSource source, float amount, float newAmount,
+                     EntityLivingDamageEvent event);
     }
 
     @ZenClass("mods.champions.affix.OnDeath")

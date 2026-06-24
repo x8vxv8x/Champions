@@ -26,6 +26,7 @@ import c4.champions.common.config.ConfigHandler;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 public class AffixDampening extends AffixBase {
 
@@ -34,7 +35,8 @@ public class AffixDampening extends AffixBase {
     }
 
     @Override
-    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount) {
+    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+                        LivingHurtEvent evt) {
         return source instanceof EntityDamageSourceIndirect ? newAmount * (float)(1.0f - ConfigHandler.affix.dampening
                 .damageReduction) : newAmount;
     }
