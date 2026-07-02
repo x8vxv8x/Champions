@@ -25,7 +25,7 @@ import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
 @ZenRegister
-@ZenClass("mods.champions")
+@ZenClass("mods.champions.ChampionsStage")
 public class ChampionsCrT {
 
     @ZenMethod
