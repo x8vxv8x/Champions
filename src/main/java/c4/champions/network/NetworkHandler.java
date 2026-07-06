@@ -30,6 +30,7 @@ public class NetworkHandler {
             NetworkRegistry.INSTANCE.newSimpleChannel(Champions.MODID);
 
     public static void register() {
-        INSTANCE.registerMessage(PacketSyncAffix.PacketSyncHandler.class, PacketSyncAffix.class, 0, Side.CLIENT);
+        INSTANCE.registerMessage(PacketSyncChampion.Handler.class, PacketSyncChampion.class, 0, Side.CLIENT);
+        INSTANCE.registerMessage(PacketSyncAffixState.Handler.class, PacketSyncAffixState.class, 1, Side.CLIENT);
     }
 }

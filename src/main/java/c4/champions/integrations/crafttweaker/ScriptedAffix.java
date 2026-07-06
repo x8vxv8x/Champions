@@ -19,9 +19,8 @@
 
 package c4.champions.integrations.crafttweaker;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.champion.Champion;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.mc1120.events.handling.MCEntityLivingAttackedEvent;
 import crafttweaker.mc1120.events.handling.MCEntityLivingDamageEvent;
@@ -37,7 +36,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
-class ScriptedAffix extends AffixBase {
+class ScriptedAffix extends Affix {
 
     private final ScriptedAffixFunctions.CanApply canApply;
     private final ScriptedAffixFunctions.OnAttacked onAttacked;
@@ -67,28 +66,28 @@ class ScriptedAffix extends AffixBase {
     }
 
     @Override
-    public void onInitialSpawn(EntityLiving entity, IChampionship cap) {
+    public void onInitialSpawn(EntityLiving entity, Champion cap) {
         if (onInitialSpawn != null) {
             onInitialSpawn.handle(CraftTweakerMC.getIEntityLiving(entity));
         }
     }
 
     @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onSpawn(EntityLiving entity, Champion cap) {
         if (onSpawn != null) {
             onSpawn.handle(CraftTweakerMC.getIEntityLiving(entity));
         }
     }
 
     @Override
-    public void onUpdate(EntityLiving entity, IChampionship cap) {
+    public void onUpdate(EntityLiving entity, Champion cap) {
         if (onUpdate != null) {
             onUpdate.handle(CraftTweakerMC.getIEntityLiving(entity));
         }
     }
 
     @Override
-    public void onAttack(EntityLiving entity, IChampionship cap, EntityLivingBase target, DamageSource source,
+    public void onAttack(EntityLiving entity, Champion cap, EntityLivingBase target, DamageSource source,
                          float amount, LivingAttackEvent evt) {
         if (onAttack != null) {
             onAttack.handle(CraftTweakerMC.getIEntityLiving(entity), CraftTweakerMC.getIEntityLivingBase(target),
@@ -97,7 +96,7 @@ class ScriptedAffix extends AffixBase {
     }
 
     @Override
-    public void onAttacked(EntityLiving entity, IChampionship cap, DamageSource source, float amount,
+    public void onAttacked(EntityLiving entity, Champion cap, DamageSource source, float amount,
                            LivingAttackEvent evt) {
         if (onAttacked != null) {
             onAttacked.handle(CraftTweakerMC.getIEntityLiving(entity), CraftTweakerMC.getIDamageSource(source), amount,
@@ -106,27 +105,27 @@ class ScriptedAffix extends AffixBase {
     }
 
     @Override
-    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+    public float onHurt(EntityLiving entity, Champion cap, DamageSource source, float amount, float newAmount,
                         LivingHurtEvent evt) {
         return onHurt == null ? newAmount : onHurt.handle(CraftTweakerMC.getIEntityLiving(entity),
                 CraftTweakerMC.getIDamageSource(source), amount, newAmount, new MCEntityLivingHurtEvent(evt));
     }
 
     @Override
-    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+    public float onDamaged(EntityLiving entity, Champion cap, DamageSource source, float amount, float newAmount,
                            LivingDamageEvent evt) {
         return onDamaged == null ? newAmount : onDamaged.handle(CraftTweakerMC.getIEntityLiving(entity),
                 CraftTweakerMC.getIDamageSource(source), amount, newAmount, new MCEntityLivingDamageEvent(evt));
     }
 
     @Override
-    public float onHealed(EntityLiving entity, IChampionship cap, float amount, float newAmount) {
+    public float onHealed(EntityLiving entity, Champion cap, float amount, float newAmount) {
         return onHealed == null ? newAmount : onHealed.handle(CraftTweakerMC.getIEntityLiving(entity), amount,
                 newAmount);
     }
 
     @Override
-    public void onDeath(EntityLiving entity, IChampionship cap, DamageSource source, LivingDeathEvent evt) {
+    public void onDeath(EntityLiving entity, Champion cap, DamageSource source, LivingDeathEvent evt) {
         if (onDeath != null) {
             onDeath.handle(CraftTweakerMC.getIEntityLiving(entity), CraftTweakerMC.getIDamageSource(source),
                     new MCEntityLivingDeathEvent(evt));
@@ -134,7 +133,7 @@ class ScriptedAffix extends AffixBase {
     }
 
     @Override
-    public void onKnockback(EntityLiving entity, IChampionship cap, LivingKnockBackEvent evt) {
+    public void onKnockback(EntityLiving entity, Champion cap, LivingKnockBackEvent evt) {
         if (onKnockback != null) {
             onKnockback.handle(CraftTweakerMC.getIEntityLiving(entity), new MCLivingKnockBackEvent(evt));
         }

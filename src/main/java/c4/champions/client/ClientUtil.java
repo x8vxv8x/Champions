@@ -20,7 +20,8 @@
 package c4.champions.client;
 
 import c4.champions.Champions;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.AffixInstance;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import com.google.common.base.Predicates;
 import java.util.List;
@@ -129,7 +130,7 @@ public class ClientUtil {
     return null;
   }
 
-  public static void renderChampionHealth(EntityLiving living, IChampionship chp) {
+  public static void renderChampionHealth(EntityLiving living, Champion chp) {
     ScaledResolution scaledresolution = new ScaledResolution(client);
     int i = scaledresolution.getScaledWidth();
     int k = i / 2 - 91;
@@ -190,8 +191,8 @@ public class ClientUtil {
       yOffset -= 10;
     }
 
-    for (String aff : chp.getAffixes()) {
-      builder.append(I18n.format(Champions.MODID + ".affix." + aff));
+    for (AffixInstance affix : chp.getAffixes()) {
+      builder.append(I18n.format(Champions.MODID + ".affix." + affix.getIdentifier()));
       builder.append(" ");
     }
     String affixes = builder.toString().trim();

@@ -19,37 +19,43 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.affix.core.AffixNBT;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.affix.AffixState;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import javax.vecmath.Vector3d;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 
-public class AffixVortex extends AffixBase {
+public class AffixVortex extends Affix {
 
     public AffixVortex() {
         super("vortex", AffixCategory.CC);
     }
 
     @Override
-    public void onUpdate(EntityLiving entity, IChampionship cap) {
+    public AffixState createState() {
+        return new VortexState();
+    }
+
+    @Override
+    public void onUpdate(EntityLiving entity, Champion cap) {
 
         if (!entity.world.isRemote) {
             EntityLivingBase target = entity.getAttackTarget();
 
             if (isValidAffixTarget(entity, target, true)) {
-                AffixNBT.Boolean vortex = AffixNBT.getData(cap, getIdentifier(), AffixNBT.Boolean.class);
+                VortexState vortex = cap.getState(this);
 
                 if (entity.ticksExisted % 40 == 0) {
                     float chance = vortex.mode ? 0.7f : 0.4f;
 
                     if (entity.getRNG().nextFloat() < chance) {
                         vortex.mode = !vortex.mode;
-                        vortex.saveData(entity);
+                        cap.markDirty(this);
                     }
                 }
 
@@ -71,6 +77,21 @@ public class AffixVortex extends AffixBase {
                     }
                 }
             }
+        }
+    }
+
+    public static class VortexState implements AffixState {
+
+        boolean mode;
+
+        @Override
+        public void read(NBTTagCompound tag) {
+            mode = tag.getBoolean("mode");
+        }
+
+        @Override
+        public void write(NBTTagCompound tag) {
+            tag.setBoolean("mode", mode);
         }
     }
 }

@@ -23,7 +23,7 @@ import c4.champions.Champions;
 import c4.champions.common.affix.AffixRegistry;
 import c4.champions.common.rank.Rank;
 import c4.champions.common.rank.RankManager;
-import c4.champions.common.util.ChampionHelper;
+import c4.champions.common.champion.ChampionService;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +35,6 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemMonsterPlacer;
@@ -106,32 +105,8 @@ public class ItemChampionPlacer extends Item {
         } else {
             BlockPos blockpos = pos.offset(facing);
             double d0 = this.getYOffset(worldIn, blockpos);
-            Entity entity = createChampion(worldIn, ItemMonsterPlacer.getNamedIdFrom(itemstack), (double)blockpos.getX() + 0.5D, (double)blockpos.getY() + d0, (double)blockpos.getZ() + 0.5D);
-
-            if (entity != null) {
-
-                if (entity instanceof EntityLivingBase && itemstack.hasDisplayName()) {
-                    entity.setCustomNameTag(itemstack.getDisplayName());
-                }
-                ItemMonsterPlacer.applyItemEntityDataToEntity(worldIn, player, itemstack, entity);
-
-                if (ChampionHelper.isValidChampion(entity)) {
-                    EntityLiving living = (EntityLiving)entity;
-                    applyItemChampionDataToEntity(worldIn, player, itemstack, living);
-                    living.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(living)), null);
-                    worldIn.spawnEntity(entity);
-                    living.playLivingSound();
-
-                    if (!player.capabilities.isCreativeMode) {
-                        itemstack.shrink(1);
-                    }
-                    return EnumActionResult.SUCCESS;
-                } else {
-                    return EnumActionResult.FAIL;
-                }
-            }
-
-            return EnumActionResult.SUCCESS;
+            return spawnChampion(worldIn, player, itemstack, blockpos.getX() + 0.5D, blockpos.getY() + d0,
+                    blockpos.getZ() + 0.5D).getType();
         }
     }
 
@@ -167,32 +142,8 @@ public class ItemChampionPlacer extends Item {
                 if (!(worldIn.getBlockState(blockpos).getBlock() instanceof BlockLiquid)) {
                     return new ActionResult<>(EnumActionResult.PASS, itemstack);
                 } else if (worldIn.isBlockModifiable(playerIn, blockpos) && playerIn.canPlayerEdit(blockpos, raytraceresult.sideHit, itemstack)) {
-                    Entity entity = createChampion(worldIn, ItemMonsterPlacer.getNamedIdFrom(itemstack), (double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D);
-
-                    if (entity == null) {
-                        return new ActionResult<>(EnumActionResult.PASS, itemstack);
-                    } else {
-
-                        if (entity instanceof EntityLivingBase && itemstack.hasDisplayName()) {
-                            entity.setCustomNameTag(itemstack.getDisplayName());
-                        }
-                        ItemMonsterPlacer.applyItemEntityDataToEntity(worldIn, playerIn, itemstack, entity);
-
-                        if (ChampionHelper.isValidChampion(entity)) {
-                            EntityLiving living = (EntityLiving)entity;
-                            applyItemChampionDataToEntity(worldIn, playerIn, itemstack, living);
-                            living.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(living)), null);
-                            worldIn.spawnEntity(entity);
-                            living.playLivingSound();
-
-                            if (!playerIn.capabilities.isCreativeMode) {
-                                itemstack.shrink(1);
-                            }
-                            return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
-                        } else {
-                            return new ActionResult<>(EnumActionResult.FAIL, itemstack);
-                        }
-                    }
+                    return spawnChampion(worldIn, playerIn, itemstack, blockpos.getX() + 0.5D, blockpos.getY() + 0.5D,
+                            blockpos.getZ() + 0.5D);
                 } else {
                     return new ActionResult<>(EnumActionResult.FAIL, itemstack);
                 }
@@ -200,6 +151,32 @@ public class ItemChampionPlacer extends Item {
                 return new ActionResult<>(EnumActionResult.PASS, itemstack);
             }
         }
+    }
+
+    private ActionResult<ItemStack> spawnChampion(World world, EntityPlayer player, ItemStack stack, double x,
+                                                  double y, double z) {
+        Entity entity = createChampion(world, ItemMonsterPlacer.getNamedIdFrom(stack), x, y, z);
+
+        if (entity == null) {
+            return new ActionResult<>(EnumActionResult.PASS, stack);
+        }
+        if (!(entity instanceof EntityLiving)) {
+            return new ActionResult<>(EnumActionResult.FAIL, stack);
+        }
+        if (stack.hasDisplayName()) {
+            entity.setCustomNameTag(stack.getDisplayName());
+        }
+        ItemMonsterPlacer.applyItemEntityDataToEntity(world, player, stack, entity);
+        EntityLiving living = (EntityLiving)entity;
+        applyItemChampionDataToEntity(world, player, stack, living);
+        living.onInitialSpawn(world.getDifficultyForLocation(new BlockPos(living)), null);
+        world.spawnEntity(entity);
+        living.playLivingSound();
+
+        if (!player.capabilities.isCreativeMode) {
+            stack.shrink(1);
+        }
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
     @Nullable
@@ -246,7 +223,7 @@ public class ItemChampionPlacer extends Item {
                         affixes.add(affix);
                     }
                 }
-                ChampionHelper.applyChampionData(targetEntity, rank, affixes);
+                ChampionService.apply(targetEntity, rank, affixes);
             }
         }
     }

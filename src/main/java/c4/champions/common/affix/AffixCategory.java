@@ -17,7 +17,7 @@
  * License along with Champions.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package c4.champions.common.affix.core;
+package c4.champions.common.affix;
 
 public enum  AffixCategory {
     CC,

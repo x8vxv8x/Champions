@@ -17,27 +17,18 @@
  * License along with Champions.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package c4.champions.common.capability;
+package c4.champions.common.champion;
 
 import c4.champions.Champions;
-import c4.champions.common.affix.filter.AffixFilter;
-import c4.champions.common.affix.filter.AffixFilterManager;
 import c4.champions.common.config.ConfigHandler;
-import c4.champions.common.rank.Rank;
 import c4.champions.common.rank.RankManager;
-import c4.champions.common.util.ChampionHelper;
 import c4.champions.integrations.gamestages.ChampionStages;
-import c4.champions.network.NetworkHandler;
-import c4.champions.network.PacketSyncAffix;
-import com.google.common.collect.Maps;
-import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
@@ -45,7 +36,6 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -53,95 +43,55 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public final class CapabilityChampionship {
+public final class ChampionCapability {
 
-    @CapabilityInject(IChampionship.class)
-    public static final Capability<IChampionship> CHAMPION_CAP = null;
+    @CapabilityInject(Champion.class)
+    public static final Capability<Champion> CHAMPION_CAP = null;
 
     public static final EnumFacing DEFAULT_FACING = null;
     public static final ResourceLocation ID = new ResourceLocation(Champions.MODID, "championship");
 
-    private static final String AFFIX_TAG = "affixes";
-    private static final String TIER_TAG = "tier";
-    private static final String DATA_TAG = "data";
-    private static final String NAME_TAG = "name";
-
     @Nullable
     @SuppressWarnings("ConstantConditions")
-    public static IChampionship getChampionship(final EntityLiving entityIn) {
+    public static Champion get(final Entity entity) {
 
-        if (entityIn != null && entityIn.hasCapability(CHAMPION_CAP, DEFAULT_FACING)) {
-            return entityIn.getCapability(CHAMPION_CAP, DEFAULT_FACING);
+        if (entity instanceof EntityLiving && entity.hasCapability(CHAMPION_CAP, DEFAULT_FACING)) {
+            return entity.getCapability(CHAMPION_CAP, DEFAULT_FACING);
         }
         return null;
     }
 
-    public static void register() {
-        CapabilityManager.INSTANCE.register(IChampionship.class, new Capability.IStorage<IChampionship>() {
-            @Override
-            public NBTBase writeNBT(Capability<IChampionship> capability, IChampionship instance, EnumFacing side) {
-                NBTTagCompound compound = new NBTTagCompound();
-                Rank rank = instance.getRank();
-
-                if (rank != null) {
-
-                    if (rank.getTier() > 0) {
-                        NBTTagList list = new NBTTagList();
-
-                        for (String id : instance.getAffixes()) {
-                            NBTTagCompound tag = new NBTTagCompound();
-                            tag.setString("identifier", id);
-                            tag.setTag(DATA_TAG, instance.getAffixData(id));
-                            list.appendTag(tag);
-                        }
-                        compound.setTag(AFFIX_TAG, list);
-                        compound.setString(NAME_TAG, instance.getName());
-                    }
-                    compound.setInteger(TIER_TAG, rank.getTier());
-                }
-                return compound;
-            }
-
-            @Override
-            public void readNBT(Capability<IChampionship> capability, IChampionship instance, EnumFacing side, NBTBase nbt) {
-                NBTTagCompound compound = (NBTTagCompound)nbt;
-
-                if (compound.hasKey(TIER_TAG)) {
-                    int tier = compound.getInteger(TIER_TAG);
-                    instance.setRank(RankManager.getRankForTier(tier));
-
-                    if (tier > 0) {
-                        NBTTagList list = compound.getTagList(AFFIX_TAG, Constants.NBT.TAG_COMPOUND);
-                        Map<String, NBTTagCompound> affixes = Maps.newHashMap();
-
-                        for (int i = 0; i < list.tagCount(); i++) {
-                            NBTTagCompound tag = list.getCompoundTagAt(i);
-                            String id = tag.getString("identifier");
-                            AffixFilter filter = AffixFilterManager.getAffixFilter(id);
-
-                            if (filter != null && filter.isEnabled()) {
-                                affixes.put(tag.getString("identifier"), tag.getCompoundTag(DATA_TAG));
-                            }
-                        }
-                        instance.setAffixData(affixes);
-                        instance.setName(compound.getString(NAME_TAG));
-                    }
-                }
-            }
-        }, Championship::new);
+    @Nullable
+    public static Champion getElite(final Entity entity) {
+        Champion champion = get(entity);
+        return champion != null && champion.isElite() ? champion : null;
     }
 
-    public static ICapabilityProvider createProvider(final IChampionship championship) {
-        return new Provider(championship, CHAMPION_CAP, DEFAULT_FACING);
+    public static void register() {
+        CapabilityManager.INSTANCE.register(Champion.class, new Capability.IStorage<Champion>() {
+            @Override
+            public NBTBase writeNBT(Capability<Champion> capability, Champion instance, EnumFacing side) {
+                return instance.write();
+            }
+
+            @Override
+            public void readNBT(Capability<Champion> capability, Champion instance, EnumFacing side, NBTBase nbt) {
+                instance.read((NBTTagCompound)nbt);
+            }
+        }, Champion::new);
+    }
+
+    public static ICapabilityProvider createProvider(final Champion champion) {
+        return new Provider(champion, CHAMPION_CAP, DEFAULT_FACING);
     }
 
     public static class Provider implements ICapabilitySerializable<NBTBase> {
 
-        final Capability<IChampionship> capability;
+        final Capability<Champion> capability;
         final EnumFacing facing;
-        final IChampionship instance;
+        final Champion instance;
 
-        Provider (final IChampionship instance, final Capability<IChampionship> capability, @Nullable final EnumFacing
+        Provider (final Champion instance, final Capability<Champion> capability, @Nullable final EnumFacing
                 facing) {
             this.instance = instance;
             this.capability = capability;
@@ -158,7 +108,7 @@ public final class CapabilityChampionship {
             return capability == getCapability() ? getCapability().cast(this.instance) : null;
         }
 
-        final Capability<IChampionship> getCapability() {
+        final Capability<Champion> getCapability() {
             return capability;
         }
 
@@ -166,7 +116,7 @@ public final class CapabilityChampionship {
             return facing;
         }
 
-        final IChampionship getInstance() {
+        final Champion getInstance() {
             return instance;
         }
 
@@ -191,8 +141,8 @@ public final class CapabilityChampionship {
         public static void attachCapabilities(final AttachCapabilitiesEvent<Entity> evt) {
             Entity entity = evt.getObject();
 
-            if (ChampionHelper.isValidChampion(entity) && ChampionHelper.isValidDimension(entity.dimension)) {
-                evt.addCapability(ID, createProvider(new Championship()));
+            if (ChampionRules.isChampionEntity(entity) && ChampionRules.isValidDimension(entity.dimension)) {
+                evt.addCapability(ID, createProvider(new Champion()));
             }
         }
 
@@ -200,13 +150,12 @@ public final class CapabilityChampionship {
         public static void entityJoin(EntityJoinWorldEvent evt) {
             Entity entity = evt.getEntity();
 
-            if (!entity.world.isRemote && ChampionHelper.isValidChampion(entity)) {
+            if (!entity.world.isRemote && ChampionRules.isChampionEntity(entity)) {
                 EntityLiving living = (EntityLiving)entity;
-                IChampionship chp = getChampionship(living);
+                Champion chp = get(living);
 
                 if (chp != null && chp.getRank() == null) {
-                    Rank rank = ChampionHelper.generateRank(living);
-                    ChampionHelper.applyChampionData(living, rank);
+                    ChampionService.apply(living, ChampionService.generateRank(living));
                 }
             }
         }
@@ -215,9 +164,9 @@ public final class CapabilityChampionship {
         public static void entitySpawn(LivingSpawnEvent.SpecialSpawn evt) {
             Entity entity = evt.getEntity();
 
-            if (!entity.world.isRemote && ChampionHelper.isValidChampion(entity)) {
+            if (!entity.world.isRemote && ChampionRules.isChampionEntity(entity)) {
                 EntityLiving living = (EntityLiving)entity;
-                IChampionship chp = getChampionship(living);
+                Champion chp = get(living);
 
                 if (chp != null) {
 
@@ -232,8 +181,7 @@ public final class CapabilityChampionship {
                     }
 
                     if (chp.getRank() == null) {
-                        Rank rank = ChampionHelper.generateRank(living);
-                        ChampionHelper.applyChampionData(living, rank);
+                        ChampionService.apply(living, ChampionService.generateRank(living));
                     }
                 }
             }
@@ -246,12 +194,11 @@ public final class CapabilityChampionship {
             if (evt.getEntityPlayer() instanceof EntityPlayerMP) {
                 EntityPlayerMP playerMP = (EntityPlayerMP)evt.getEntityPlayer();
 
-                if (ChampionHelper.isValidChampion(entity)) {
-                    IChampionship chp = getChampionship((EntityLiving) entity);
+                if (ChampionRules.isChampionEntity(entity)) {
+                    Champion chp = get(entity);
 
-                    if (chp != null && ChampionHelper.isElite(chp.getRank())) {
-                        NetworkHandler.INSTANCE.sendTo(new PacketSyncAffix(entity.getEntityId(),
-                                chp.getRank().getTier(), chp.getAffixData(), chp.getName()), playerMP);
+                    if (chp != null && chp.isElite()) {
+                        ChampionSync.toPlayer((EntityLiving)entity, playerMP);
                     }
                 }
             }

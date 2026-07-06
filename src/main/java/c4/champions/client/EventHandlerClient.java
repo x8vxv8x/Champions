@@ -19,11 +19,10 @@
 
 package c4.champions.client;
 
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.champion.ChampionCapability;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.init.ChampionsRegistry;
-import c4.champions.common.util.ChampionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.MovementInput;
@@ -54,15 +53,12 @@ public class EventHandlerClient {
 
             if (mouseOver != null && mouseOver.typeOfHit == RayTraceResult.Type.ENTITY) {
                 Entity entity = mouseOver.entityHit;
+                Champion chp = ChampionCapability.getElite(entity);
 
-                if (ChampionHelper.isValidChampion(entity)) {
+                if (chp != null && !ConfigHandler.hideEffects) {
                     EntityLiving living = (EntityLiving)entity;
-                    IChampionship chp = CapabilityChampionship.getChampionship(living);
-
-                    if (chp != null && ChampionHelper.isElite(chp.getRank()) && !ConfigHandler.hideEffects) {
-                        ClientUtil.renderChampionHealth(living, chp);
-                        evt.setCanceled(true);
-                    }
+                    ClientUtil.renderChampionHealth(living, chp);
+                    evt.setCanceled(true);
                 }
             }
         }

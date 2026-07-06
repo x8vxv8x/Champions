@@ -21,7 +21,7 @@ package c4.champions.common.affix.filter;
 
 import c4.champions.Champions;
 import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.core.AffixBase;
+import c4.champions.common.affix.Affix;
 import c4.champions.common.util.JsonUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -50,11 +50,7 @@ public class AffixFilterManager {
         return FILTERS.get(identifier);
     }
 
-    public static boolean hasAffixFilter(String identifier) {
-        return getAffixFilter(identifier) != null;
-    }
-
-    public static boolean isValidAffix(AffixBase affix, EntityLiving entityLiving, int tier) {
+    public static boolean isValidAffix(Affix affix, EntityLiving entityLiving, int tier) {
         AffixFilter filter = getAffixFilter(affix.getIdentifier());
         boolean hasTier = affix.getTier() <= tier;
 
@@ -139,10 +135,10 @@ public class AffixFilterManager {
     }
 
     private static AffixFilter[] buildDefaultAffixFilters() {
-        ImmutableList<AffixBase> affixes = AffixRegistry.getAllAffixes();
+        ImmutableList<Affix> affixes = AffixRegistry.getAllAffixes();
         List<AffixFilter> filters = Lists.newArrayList();
 
-        for (AffixBase aff : affixes) {
+        for (Affix aff : affixes) {
             filters.add(new AffixFilter(aff.getIdentifier(), true, new String[]{}, new String[]{}, aff.getTier()));
         }
         AffixFilter[] arr = new AffixFilter[filters.size()];

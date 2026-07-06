@@ -20,23 +20,16 @@
 package c4.champions.command;
 
 import c4.champions.Champions;
-import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.core.AffixBase;
 import c4.champions.common.init.ChampionsRegistry;
 import c4.champions.common.item.ItemChampionPlacer;
-import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -73,36 +66,13 @@ public class CommandChampionEgg extends CommandBase {
         if (args.length < 2) {
             throw new WrongUsageException(getUsage(sender));
         }
-        ResourceLocation rl = new ResourceLocation(args[0]);
-        Entity entity = EntityList.createEntityByIDFromName(rl, sender.getEntityWorld());
-
-        if (entity == null || !(entity instanceof EntityLiving)) {
-            throw new CommandException(Champions.MODID + ".commands.spawnchampion.entityError", args[0]);
-        }
-
-        int tier;
-
-        try {
-            tier = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            throw new CommandException(Champions.MODID + ".commands.spawnchampion.tierError", args[1]);
-        }
-        Set<String> argAffix = Sets.newHashSet();
-
-        for (int i = 2; i < args.length; i++) {
-            String affix = args[i];
-            AffixBase affixBase = AffixRegistry.getAffix(affix);
-
-            if (affixBase == null) {
-                throw new CommandException(Champions.MODID + ".commands.spawnchampion.affixError", args[i]);
-            }
-            argAffix.add(args[i]);
-        }
+        ChampionCommand.entity(sender.getEntityWorld(), args[0]);
 
         if (sender.getCommandSenderEntity() instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer)sender.getCommandSenderEntity();
             ItemStack stack = new ItemStack(ChampionsRegistry.championEgg);
-            ItemChampionPlacer.applyEntityInfoToItemStack(stack, rl, tier, argAffix);
+            ItemChampionPlacer.applyEntityInfoToItemStack(stack, new ResourceLocation(args[0]),
+                    ChampionCommand.tier(args[1]), ChampionCommand.affixes(args, 2));
             ItemHandlerHelper.giveItemToPlayer(player, stack);
             notifyCommandListener(sender, this, Champions.MODID + ".commands.championegg.success", player.getName());
         }

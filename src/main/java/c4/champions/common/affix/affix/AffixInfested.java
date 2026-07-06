@@ -19,11 +19,11 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.affix.core.AffixNBT;
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.affix.AffixState;
+import c4.champions.common.champion.ChampionCapability;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.rank.RankManager;
 import com.google.common.collect.Lists;
@@ -36,48 +36,54 @@ import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityEndermite;
 import net.minecraft.entity.monster.EntityShulker;
 import net.minecraft.entity.monster.EntitySilverfish;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
-public class AffixInfested extends AffixBase {
+public class AffixInfested extends Affix {
 
     public AffixInfested() {
         super("infested", AffixCategory.OFFENSE);
     }
 
     @Override
-    public void onInitialSpawn(EntityLiving entity, IChampionship cap) {
-        AffixNBT.Integer buffer = AffixNBT.getData(cap, getIdentifier(), AffixNBT.Integer.class);
-        buffer.num = Math.min(ConfigHandler.affix.infested.silverfishTotal, Math.max(1, (int)(entity.getMaxHealth()
-                * ConfigHandler.affix.infested.silverfishPerHealth)));
-        buffer.saveData(entity);
+    public AffixState createState() {
+        return new ParasiteState();
     }
 
     @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onInitialSpawn(EntityLiving entity, Champion cap) {
+        ParasiteState buffer = cap.getState(this);
+        buffer.num = Math.min(ConfigHandler.affix.infested.silverfishTotal, Math.max(1, (int)(entity.getMaxHealth()
+                * ConfigHandler.affix.infested.silverfishPerHealth)));
+        cap.markDirty(this);
+    }
+
+    @Override
+    public void onSpawn(EntityLiving entity, Champion cap) {
         entity.tasks.addTask(0, new AISpawnParasite(entity));
     }
 
     @Override
-    public float onHealed(EntityLiving entity, IChampionship cap, float amount, float newAmount) {
+    public float onHealed(EntityLiving entity, Champion cap, float amount, float newAmount) {
 
         if (newAmount > 0 && rand.nextFloat() < 0.5F) {
-            AffixNBT.Integer buffer = AffixNBT.getData(cap, getIdentifier(), AffixNBT.Integer.class);
+            ParasiteState buffer = cap.getState(this);
             buffer.num = Math.min(ConfigHandler.affix.infested.silverfishTotal, buffer.num + 2);
-            buffer.saveData(entity);
+            cap.markDirty(this);
             return 0;
         }
         return newAmount;
     }
 
     @Override
-    public void onDeath(EntityLiving entity, IChampionship cap, DamageSource source, LivingDeathEvent evt) {
+    public void onDeath(EntityLiving entity, Champion cap, DamageSource source, LivingDeathEvent evt) {
 
         if (!entity.world.isRemote) {
-            AffixNBT.Integer buffer = AffixNBT.getData(cap, getIdentifier(), AffixNBT.Integer.class);
+            ParasiteState buffer = cap.getState(this);
             EntityLivingBase target = null;
 
             if (source.getTrueSource() instanceof EntityLivingBase) {
@@ -99,7 +105,7 @@ public class AffixInfested extends AffixBase {
         for (int i = 0; i < amount; i++) {
             EntityLiving para = isEnder ? new EntityEndermite(world) : new EntitySilverfish(world);
             para.setLocationAndAngles((double)pos.getX() + 0.5D, pos.getY(), (double)pos.getZ() + 0.5D, 0.0F, 0.0F);
-            IChampionship chp = CapabilityChampionship.getChampionship(para);
+            Champion chp = ChampionCapability.get(para);
 
             if (chp != null) {
                 chp.setRank(RankManager.getEmptyRank());
@@ -143,11 +149,11 @@ public class AffixInfested extends AffixBase {
             if (entity.world.getDifficulty() != EnumDifficulty.PEACEFUL) {
                 --this.attackTime;
                 EntityLivingBase entitylivingbase = entity.getAttackTarget();
-                IChampionship chp = CapabilityChampionship.getChampionship(entity);
+                Champion chp = ChampionCapability.get(entity);
 
                 if (entitylivingbase != null && chp != null) {
                     entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 180.0F, 180.0F);
-                    AffixNBT.Integer buffer = AffixNBT.getData(chp, getIdentifier(), AffixNBT.Integer.class);
+                    ParasiteState buffer = chp.getState(AffixInfested.this);
 
                     if (this.attackTime <= 0 && buffer.num > 0) {
                         this.attackTime = ConfigHandler.affix.desecrator.attackInterval + entity.getRNG().nextInt(5) * 10;
@@ -160,11 +166,26 @@ public class AffixInfested extends AffixBase {
                             en.setAttackTarget(entitylivingbase);
                         }
                         buffer.num = Math.max(0, buffer.num - parasites.size());
-                        buffer.saveData(entity);
+                        chp.markDirty(AffixInfested.this);
                     }
                 }
                 super.updateTask();
             }
+        }
+    }
+
+    public static class ParasiteState implements AffixState {
+
+        int num;
+
+        @Override
+        public void read(NBTTagCompound tag) {
+            num = tag.getInteger("num");
+        }
+
+        @Override
+        public void write(NBTTagCompound tag) {
+            tag.setInteger("num", num);
         }
     }
 }

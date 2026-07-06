@@ -20,9 +20,8 @@
 package c4.champions.common.loot;
 
 import c4.champions.Champions;
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
-import c4.champions.common.util.ChampionHelper;
+import c4.champions.common.champion.ChampionCapability;
+import c4.champions.common.champion.Champion;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,7 +29,6 @@ import com.google.gson.JsonSerializationContext;
 import java.util.Random;
 import javax.annotation.Nonnull;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.properties.EntityProperty;
@@ -48,19 +46,15 @@ public class EntityIsChampion implements EntityProperty {
     }
 
     public boolean testProperty(@Nonnull Random random, @Nonnull Entity entityIn) {
+        Champion chp = ChampionCapability.getElite(entityIn);
 
-        if (ChampionHelper.isValidChampion(entityIn)) {
-            IChampionship chp = CapabilityChampionship.getChampionship((EntityLiving)entityIn);
+        if (chp != null) {
+            int tier = chp.getRank().getTier();
 
-            if (chp != null && ChampionHelper.isElite(chp.getRank())) {
-                int tier = chp.getRank().getTier();
-
-                if (this.tier == 0) {
-                    return (minTier == 0 || tier >= minTier) && (maxTier == 0 || tier <= maxTier);
-                } else {
-                    return this.tier == tier;
-                }
+            if (this.tier == 0) {
+                return (minTier == 0 || tier >= minTier) && (maxTier == 0 || tier <= maxTier);
             }
+            return this.tier == tier;
         }
         return false;
     }

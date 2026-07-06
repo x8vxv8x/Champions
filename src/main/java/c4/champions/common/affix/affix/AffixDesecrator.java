@@ -19,9 +19,9 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.EntityLiving;
@@ -33,19 +33,19 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
-public class AffixDesecrator extends AffixBase {
+public class AffixDesecrator extends Affix {
 
     public AffixDesecrator() {
         super("desecrator", AffixCategory.OFFENSE);
     }
 
     @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onSpawn(EntityLiving entity, Champion cap) {
         entity.tasks.addTask(0, new AIAttack(entity));
     }
 
     @Override
-    public void onAttacked(EntityLiving entity, IChampionship cap, DamageSource source, float amount, LivingAttackEvent evt) {
+    public void onAttacked(EntityLiving entity, Champion cap, DamageSource source, float amount, LivingAttackEvent evt) {
 
         if (source.getImmediateSource() instanceof EntityAreaEffectCloud && source.getTrueSource() == entity) {
             evt.setCanceled(true);

@@ -19,9 +19,9 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.entity.EntityArcticSpark;
 import net.minecraft.entity.EntityLiving;
@@ -30,14 +30,14 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.world.EnumDifficulty;
 
-public class AffixArctic extends AffixBase {
+public class AffixArctic extends Affix {
 
     public AffixArctic() {
         super("arctic", AffixCategory.CC);
     }
 
     @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onSpawn(EntityLiving entity, Champion cap) {
         entity.tasks.addTask(0, new AIAttack(entity));
     }
 

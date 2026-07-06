@@ -20,7 +20,7 @@
 package c4.champions.integrations.crafttweaker;
 
 import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.core.AffixCategory;
+import c4.champions.common.affix.AffixCategory;
 import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import java.util.Locale;

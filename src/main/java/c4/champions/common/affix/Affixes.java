@@ -35,7 +35,7 @@ import c4.champions.common.affix.affix.AffixReflecting;
 import c4.champions.common.affix.affix.AffixScrapper;
 import c4.champions.common.affix.affix.AffixShielding;
 import c4.champions.common.affix.affix.AffixVortex;
-import c4.champions.common.affix.core.AffixBase;
+import c4.champions.common.affix.Affix;
 
 public class Affixes {
 
@@ -59,8 +59,8 @@ public class Affixes {
                 new AffixCinder());
     }
 
-    private static void register(AffixBase... affixes) {
-        for (AffixBase affix : affixes) {
+    private static void register(Affix... affixes) {
+        for (Affix affix : affixes) {
             AffixRegistry.registerAffix(affix);
         }
     }

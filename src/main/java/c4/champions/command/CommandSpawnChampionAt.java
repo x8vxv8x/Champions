@@ -20,25 +20,17 @@
 package c4.champions.command;
 
 import c4.champions.Champions;
-import c4.champions.common.affix.AffixRegistry;
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.rank.RankManager;
-import c4.champions.common.util.ChampionHelper;
-import com.google.common.collect.Sets;
+import c4.champions.common.champion.ChampionService;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -78,42 +70,10 @@ public class CommandSpawnChampionAt extends CommandBase {
     double posZ = parseDouble(args[2]);
     BlockPos blockPos = new BlockPos(posX, posY, posZ);
 
-    Entity entity =
-            EntityList.createEntityByIDFromName(new ResourceLocation(args[3]),
-                                                sender.getEntityWorld());
-
-    if (!(entity instanceof EntityLiving)) {
-      throw new CommandException(
-              Champions.MODID + ".commands.spawnchampion.entityError", args[3]);
-    }
-
-    EntityLiving living = (EntityLiving) entity;
-    int tier;
-
-    try {
-      tier = Integer.parseInt(args[4]);
-    } catch (NumberFormatException e) {
-      throw new CommandException(
-              Champions.MODID + ".commands.spawnchampion.tierError", args[4]);
-    }
-
-    Set<String> argAffix = Sets.newHashSet();
-
-    for (int i = 5; i < args.length; i++) {
-      String affix = args[i];
-      AffixBase affixBase = AffixRegistry.getAffix(affix);
-
-      if (affixBase == null) {
-        throw new CommandException(
-                Champions.MODID + ".commands.spawnchampion.affixError",
-                args[i]);
-      }
-      argAffix.add(args[i]);
-    }
-
     World world = sender.getEntityWorld();
+    EntityLiving living = ChampionCommand.entity(world, args[3]);
     living.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-    ChampionHelper.applyChampionData(living, RankManager.getRankForTier(tier), argAffix);
+    ChampionService.apply(living, ChampionCommand.rank(args[4]), ChampionCommand.affixes(args, 5));
 
     living.onInitialSpawn(world.getDifficultyForLocation(blockPos), null);
     world.spawnEntity(living);

@@ -19,9 +19,9 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,7 +32,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class AffixReflecting extends AffixBase {
+public class AffixReflecting extends Affix {
 
   public AffixReflecting() {
     super("reflecting", AffixCategory.OFFENSE);
@@ -54,7 +54,7 @@ public class AffixReflecting extends AffixBase {
   }
 
   @Override
-  public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount,
+  public float onDamaged(EntityLiving entity, Champion cap, DamageSource source, float amount,
       float newAmount, LivingDamageEvent evt) {
 
     if (source.getTrueSource() instanceof EntityLivingBase) {

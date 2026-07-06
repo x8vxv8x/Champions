@@ -20,11 +20,11 @@
 package c4.champions.common;
 
 import c4.champions.Champions;
-import c4.champions.common.capability.CapabilityChampionship;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.champion.ChampionCapability;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.init.ChampionsRegistry;
-import c4.champions.common.util.ChampionHelper;
+import c4.champions.common.champion.ChampionService;
 import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -66,11 +66,11 @@ public class EventHandlerCommon {
             return;
         }
 
-        if (flag && !entityLivingBase.world.isRemote && ChampionHelper.isValidChampion(entityLivingBase)) {
-            IChampionship chp = CapabilityChampionship.getChampionship((EntityLiving)entityLivingBase);
+        if (flag && !entityLivingBase.world.isRemote) {
+            Champion chp = ChampionCapability.getElite(entityLivingBase);
             int messageTier = ConfigHandler.deathMessageTier;
 
-            if (messageTier > 0 && chp != null && ChampionHelper.isElite(chp.getRank()) && chp.getRank().getTier() >= messageTier) {
+            if (messageTier > 0 && chp != null && chp.getRank().getTier() >= messageTier) {
                 entityLivingBase.getServer().getPlayerList().sendMessage(new TextComponentTranslation("champions.identifier")
                         .appendSibling(new TextComponentString(" "))
                         .appendSibling(entityLivingBase.getCombatTracker().getDeathMessage()));
@@ -86,46 +86,44 @@ public class EventHandlerCommon {
             return;
         }
 
-        if (ChampionHelper.isValidChampion(entity)) {
-            IChampionship chp = CapabilityChampionship.getChampionship((EntityLiving)entity);
+        Champion chp = ChampionCapability.getElite(entity);
 
-            if (chp != null && ChampionHelper.isElite(chp.getRank())) {
+        if (chp != null) {
 
-                if (entity.world instanceof WorldServer) {
+            if (entity.world instanceof WorldServer) {
 
-                    if (ConfigHandler.lootSource != ConfigHandler.LootSource.CONFIG) {
-                        WorldServer world = (WorldServer) entity.world;
-                        LootTable table = world.getLootTableManager().getLootTableFromLocation(CHAMPION_LOOT);
-                        DamageSource source = evt.getSource();
-                        LootContext.Builder builder = new LootContext.Builder(world).withDamageSource(evt.getSource()).withLootedEntity(entity);
+                if (ConfigHandler.lootSource != ConfigHandler.LootSource.CONFIG) {
+                    WorldServer world = (WorldServer) entity.world;
+                    LootTable table = world.getLootTableManager().getLootTableFromLocation(CHAMPION_LOOT);
+                    DamageSource source = evt.getSource();
+                    LootContext.Builder builder = new LootContext.Builder(world).withDamageSource(evt.getSource()).withLootedEntity(entity);
 
-                        if (source.getTrueSource() instanceof EntityPlayer) {
-                            EntityPlayer player = (EntityPlayer) source.getTrueSource();
-                            builder.withPlayer(player).withLuck(player.getLuck());
-                        }
-                        LootContext ctx = builder.build();
-                        List<ItemStack> stacks = table.generateLootForPools(world.rand, ctx);
-
-                        for (ItemStack stack : stacks) {
-                            EntityItem entityitem = new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ,
-                                    stack);
-                            entityitem.setDefaultPickupDelay();
-                            evt.getDrops().add(entityitem);
-                        }
+                    if (source.getTrueSource() instanceof EntityPlayer) {
+                        EntityPlayer player = (EntityPlayer) source.getTrueSource();
+                        builder.withPlayer(player).withLuck(player.getLuck());
                     }
+                    LootContext ctx = builder.build();
+                    List<ItemStack> stacks = table.generateLootForPools(world.rand, ctx);
 
-                    if (ConfigHandler.lootSource != ConfigHandler.LootSource.LOOT_TABLE) {
-                        List<ItemStack> loot = ChampionHelper.getLootDrops(chp.getRank().getTier());
+                    for (ItemStack stack : stacks) {
+                        EntityItem entityitem = new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ,
+                                stack);
+                        entityitem.setDefaultPickupDelay();
+                        evt.getDrops().add(entityitem);
+                    }
+                }
 
-                        if (!loot.isEmpty()) {
-                            loot.forEach(lootStack -> {
-                                if (!lootStack.isEmpty()) {
-                                    EntityItem entityitem = new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, lootStack);
-                                    entityitem.setDefaultPickupDelay();
-                                    evt.getDrops().add(entityitem);
-                                }
-                            });
-                        }
+                if (ConfigHandler.lootSource != ConfigHandler.LootSource.LOOT_TABLE) {
+                    List<ItemStack> loot = ChampionService.getLootDrops(chp.getRank().getTier());
+
+                    if (!loot.isEmpty()) {
+                        loot.forEach(lootStack -> {
+                            if (!lootStack.isEmpty()) {
+                                EntityItem entityitem = new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, lootStack);
+                                entityitem.setDefaultPickupDelay();
+                                evt.getDrops().add(entityitem);
+                            }
+                        });
                     }
                 }
             }
@@ -136,13 +134,11 @@ public class EventHandlerCommon {
     public void livingXP(LivingExperienceDropEvent evt) {
         EntityLivingBase entity = evt.getEntityLiving();
 
-        if (ChampionHelper.isValidChampion(entity)) {
-            IChampionship chp = CapabilityChampionship.getChampionship((EntityLiving)entity);
+        Champion chp = ChampionCapability.getElite(entity);
 
-            if (chp != null && ChampionHelper.isElite(chp.getRank())) {
-                evt.setDroppedExperience((int)(chp.getRank().getGrowthFactor() * ConfigHandler.growth.exp * evt
-                        .getOriginalExperience()));
-            }
+        if (chp != null) {
+            evt.setDroppedExperience((int)(chp.getRank().getGrowthFactor() * ConfigHandler.growth.exp * evt
+                    .getOriginalExperience()));
         }
     }
 
@@ -153,11 +149,10 @@ public class EventHandlerCommon {
         if (evt.getSource().getTrueSource() instanceof EntityLiving) {
             EntityLiving entity = (EntityLiving)evt.getSource().getTrueSource();
 
-            if (entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE) == null
-                    && ChampionHelper.isValidChampion(entity)) {
-                IChampionship chp = CapabilityChampionship.getChampionship(entity);
+            if (entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE) == null) {
+                Champion chp = ChampionCapability.getElite(entity);
 
-                if (chp != null && ChampionHelper.isElite(chp.getRank())) {
+                if (chp != null) {
                     evt.setAmount(evt.getAmount() * (float)(1 + ConfigHandler.growth.attackDamage * chp.getRank()
                             .getTier()));
                 }
@@ -171,9 +166,9 @@ public class EventHandlerCommon {
         EntityLivingBase entityLivingBase = explosion.getExplosivePlacedBy();
 
         if (entityLivingBase instanceof EntityCreeper && !entityLivingBase.world.isRemote) {
-            IChampionship chp = CapabilityChampionship.getChampionship((EntityCreeper)entityLivingBase);
+            Champion chp = ChampionCapability.getElite(entityLivingBase);
 
-            if (chp != null && ChampionHelper.isElite(chp.getRank())) {
+            if (chp != null) {
                 explosion.size += ConfigHandler.growth.creeperStrength * chp.getRank().getTier();
             }
         }

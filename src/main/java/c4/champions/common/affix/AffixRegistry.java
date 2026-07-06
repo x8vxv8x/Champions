@@ -19,9 +19,6 @@
 
 package c4.champions.common.affix;
 
-import c4.champions.Champions;
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -29,21 +26,20 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.logging.log4j.Level;
 
 public class AffixRegistry {
 
-    private static final Map<String, AffixBase> affixMap = Maps.newHashMap();
+    private static final Map<String, Affix> affixMap = Maps.newHashMap();
     private static final Map<AffixCategory, Set<String>> categoryMap = Maps.newEnumMap(AffixCategory.class);
 
-    public static void registerAffix(AffixBase affix) {
+    public static void registerAffix(Affix affix) {
         if (affix == null) {
             throw new IllegalArgumentException("Cannot register null affix");
         }
         registerAffix(affix.getIdentifier(), affix);
     }
 
-    public static void registerAffix(String identifier, AffixBase affix) {
+    public static void registerAffix(String identifier, Affix affix) {
         if (identifier == null || identifier.isEmpty()) {
             throw new IllegalArgumentException("Affix identifier cannot be null or empty");
         }
@@ -58,11 +54,11 @@ public class AffixRegistry {
     }
 
     @Nullable
-    public static AffixBase getAffix(String identifier) {
+    public static Affix getAffix(String identifier) {
         return affixMap.get(identifier);
     }
 
-    public static ImmutableList<AffixBase> getAllAffixes() {
+    public static ImmutableList<Affix> getAllAffixes() {
         return ImmutableList.copyOf(affixMap.values());
     }
 
@@ -70,13 +66,4 @@ public class AffixRegistry {
         return ImmutableMap.copyOf(categoryMap);
     }
 
-    public static Set<String> getAffixesForCategory(AffixCategory category) {
-
-        if (categoryMap.containsKey(category)) {
-            return Sets.newHashSet(categoryMap.get(category));
-        } else {
-            Champions.logger.log(Level.ERROR, "No affixes found for category " + category.toString());
-            return Sets.newHashSet();
-        }
-    }
 }

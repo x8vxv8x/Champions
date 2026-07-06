@@ -20,9 +20,9 @@
 package c4.champions.common.affix.affix;
 
 import c4.champions.Champions;
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import java.lang.reflect.Field;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.Level;
 
-public class AffixMolten extends AffixBase {
+public class AffixMolten extends Affix {
 
     private static final Field IMMUNE_TO_FIRE = ReflectionHelper.findField(Entity.class, "isImmuneToFire",
             "field_70178_ae");
@@ -52,7 +52,7 @@ public class AffixMolten extends AffixBase {
     }
 
     @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onSpawn(EntityLiving entity, Champion cap) {
         entity.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 40, 0, true, false));
         entity.setPathPriority(PathNodeType.WATER, -1.0F);
         entity.setPathPriority(PathNodeType.LAVA, 8.0F);
@@ -76,7 +76,7 @@ public class AffixMolten extends AffixBase {
     }
 
     @Override
-    public void onUpdate(EntityLiving entity, IChampionship cap) {
+    public void onUpdate(EntityLiving entity, Champion cap) {
 
         if (!entity.world.isRemote) {
 
@@ -99,7 +99,7 @@ public class AffixMolten extends AffixBase {
     }
 
     @Override
-    public void onAttack(EntityLiving entity, IChampionship cap, EntityLivingBase target, DamageSource source, float
+    public void onAttack(EntityLiving entity, Champion cap, EntityLivingBase target, DamageSource source, float
             amount, LivingAttackEvent evt) {
         target.setFire(10);
         source.setMagicDamage();

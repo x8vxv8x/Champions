@@ -17,10 +17,9 @@
  * License along with Champions.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package c4.champions.common.affix.core;
+package c4.champions.common.affix;
 
-import c4.champions.common.affix.IAffix;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import java.util.Random;
 import net.minecraft.entity.EntityLiving;
@@ -34,7 +33,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
-public abstract class AffixBase implements IAffix {
+public abstract class Affix {
 
     protected static final Random rand = new Random();
 
@@ -42,90 +41,79 @@ public abstract class AffixBase implements IAffix {
     private final AffixCategory category;
     private final int tier;
 
-    public AffixBase(String identifier, AffixCategory category) {
+    public Affix(String identifier, AffixCategory category) {
         this(identifier, category, 1);
     }
 
-    public AffixBase(String identifier, AffixCategory category, int tier) {
+    public Affix(String identifier, AffixCategory category, int tier) {
         this.identifier = identifier;
         this.category = category;
         this.tier = tier;
     }
 
-    @Override
     public String getIdentifier() {
         return identifier;
     }
 
-    @Override
     public AffixCategory getCategory() {
         return category;
     }
 
-    @Override
-    public void onInitialSpawn(EntityLiving entity, IChampionship cap) {
+    public AffixState createState() {
+        return AffixState.EMPTY;
+    }
+
+    public void onInitialSpawn(EntityLiving entity, Champion cap) {
 
     }
 
-    @Override
-    public void onSpawn(EntityLiving entity, IChampionship cap) {
+    public void onSpawn(EntityLiving entity, Champion cap) {
 
     }
 
-    @Override
-    public void onUpdate(EntityLiving entity, IChampionship cap) {
+    public void onUpdate(EntityLiving entity, Champion cap) {
 
     }
 
-    @Override
-    public void onAttack(EntityLiving entity, IChampionship cap, EntityLivingBase target, DamageSource source, float
+    public void onAttack(EntityLiving entity, Champion cap, EntityLivingBase target, DamageSource source, float
             amount, LivingAttackEvent evt) {
 
     }
 
-    @Override
-    public void onAttacked(EntityLiving entity, IChampionship cap, DamageSource source, float amount, LivingAttackEvent evt) {
+    public void onAttacked(EntityLiving entity, Champion cap, DamageSource source, float amount, LivingAttackEvent evt) {
 
     }
 
-    @Override
-    public float onHurt(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+    public float onHurt(EntityLiving entity, Champion cap, DamageSource source, float amount, float newAmount,
                         LivingHurtEvent evt) {
         return newAmount;
     }
 
-    @Override
-    public float onDamaged(EntityLiving entity, IChampionship cap, DamageSource source, float amount, float newAmount,
+    public float onDamaged(EntityLiving entity, Champion cap, DamageSource source, float amount, float newAmount,
                            LivingDamageEvent evt) {
         return newAmount;
     }
 
-    @Override
-    public float onHealed(EntityLiving entity, IChampionship cap, float amount, float newAmount) {
+    public float onHealed(EntityLiving entity, Champion cap, float amount, float newAmount) {
         return newAmount;
     }
 
-    @Override
-    public void onKnockback(EntityLiving entity, IChampionship cap, LivingKnockBackEvent evt) {
+    public void onKnockback(EntityLiving entity, Champion cap, LivingKnockBackEvent evt) {
 
     }
 
-    @Override
-    public void onDeath(EntityLiving entity, IChampionship cap, DamageSource source, LivingDeathEvent evt) {
+    public void onDeath(EntityLiving entity, Champion cap, DamageSource source, LivingDeathEvent evt) {
 
     }
 
-    @Override
     public boolean canApply(EntityLiving entity) {
         return true;
     }
 
-    @Override
-    public boolean isCompatibleWith(IAffix affix) {
+    public boolean isCompatibleWith(Affix affix) {
         return affix != this;
     }
 
-    @Override
     public int getTier() {
         return tier;
     }

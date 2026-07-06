@@ -7,10 +7,10 @@ import c4.champions.common.EventHandlerCommon;
 import c4.champions.common.affix.AffixEvents;
 import c4.champions.common.affix.Affixes;
 import c4.champions.common.affix.filter.AffixFilterManager;
-import c4.champions.common.capability.CapabilityChampionship;
+import c4.champions.common.champion.ChampionCapability;
 import c4.champions.common.loot.EntityIsChampion;
 import c4.champions.common.rank.RankManager;
-import c4.champions.common.util.ChampionHelper;
+import c4.champions.common.champion.ChampionService;
 import c4.champions.integrations.scalinghealth.ChampionDifficulty;
 import c4.champions.network.NetworkHandler;
 import c4.champions.proxy.IProxy;
@@ -56,7 +56,7 @@ public class Champions
     @EventHandler
     public void init(FMLInitializationEvent evt) {
         NetworkHandler.register();
-        CapabilityChampionship.register();
+        ChampionCapability.register();
         Affixes.registerAffixes();
         MinecraftForge.EVENT_BUS.register(new AffixEvents());
         MinecraftForge.EVENT_BUS.register(new EventHandlerCommon());
@@ -76,8 +76,7 @@ public class Champions
         }
         RankManager.readRanksFromJson();
         AffixFilterManager.readAffixFiltersFromJson();
-        ChampionHelper.parseConfigs();
-        proxy.postInit(evt);
+        ChampionService.parseConfigs();
     }
 
     @EventHandler

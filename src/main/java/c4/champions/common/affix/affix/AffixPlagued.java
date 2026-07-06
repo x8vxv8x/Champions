@@ -19,9 +19,9 @@
 
 package c4.champions.common.affix.affix;
 
-import c4.champions.common.affix.core.AffixBase;
-import c4.champions.common.affix.core.AffixCategory;
-import c4.champions.common.capability.IChampionship;
+import c4.champions.common.affix.Affix;
+import c4.champions.common.affix.AffixCategory;
+import c4.champions.common.champion.Champion;
 import c4.champions.common.config.ConfigHandler;
 import c4.champions.common.init.ChampionsRegistry;
 import c4.champions.common.potion.PotionPlague;
@@ -35,14 +35,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
-public class AffixPlagued extends AffixBase {
+public class AffixPlagued extends Affix {
 
   public AffixPlagued() {
     super("plagued", AffixCategory.OFFENSE);
   }
 
   @Override
-  public void onUpdate(EntityLiving entity, IChampionship cap) {
+  public void onUpdate(EntityLiving entity, Champion cap) {
 
     if (!entity.world.isRemote) {
       List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity,
@@ -67,7 +67,7 @@ public class AffixPlagued extends AffixBase {
   }
 
   @Override
-  public void onAttack(EntityLiving entity, IChampionship cap, EntityLivingBase target,
+  public void onAttack(EntityLiving entity, Champion cap, EntityLivingBase target,
       DamageSource source, float amount, LivingAttackEvent evt) {
     target.addPotionEffect(
         new PotionEffect(ChampionsRegistry.plague, ConfigHandler.affix.plagued.duration));
