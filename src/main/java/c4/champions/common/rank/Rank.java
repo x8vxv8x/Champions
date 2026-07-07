@@ -1,22 +1,3 @@
-/*
- * Copyright (C) 2018-2019  C4
- *
- * This file is part of Champions, a mod made for Minecraft.
- *
- * Champions is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Champions is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Champions.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package c4.champions.common.rank;
 
 import c4.champions.Champions;
@@ -84,29 +65,32 @@ public class Rank {
         return potions;
     }
 
-    public void applyGrowth(EntityLivingBase entityLivingBase) {
-        applyGrowth(entityLivingBase, SharedMonsterAttributes.MAX_HEALTH, ConfigHandler.growth.health, 2);
-        entityLivingBase.setHealth(entityLivingBase.getMaxHealth());
-        applyGrowth(entityLivingBase, SharedMonsterAttributes.ATTACK_DAMAGE, ConfigHandler.growth.attackDamage, 2);
-        applyGrowth(entityLivingBase, SharedMonsterAttributes.ARMOR, ConfigHandler.growth.armor, 0);
-        applyGrowth(entityLivingBase, SharedMonsterAttributes.ARMOR_TOUGHNESS, ConfigHandler.growth.armorToughness, 0);
-        applyGrowth(entityLivingBase, SharedMonsterAttributes.KNOCKBACK_RESISTANCE, ConfigHandler.growth.knockbackResist, 0);
+    public void applyGrowth(EntityLivingBase entity) {
+        applyGrowth(entity, SharedMonsterAttributes.MAX_HEALTH, ConfigHandler.growth.health, 2);
+        applyGrowth(entity, SharedMonsterAttributes.ATTACK_DAMAGE, ConfigHandler.growth.attackDamage, 2);
+        applyGrowth(entity, SharedMonsterAttributes.ARMOR, ConfigHandler.growth.armor, 0);
+        applyGrowth(entity, SharedMonsterAttributes.ARMOR_TOUGHNESS, ConfigHandler.growth.armorToughness, 0);
+        applyGrowth(entity, SharedMonsterAttributes.KNOCKBACK_RESISTANCE, ConfigHandler.growth.knockbackResist, 0);
+        entity.setHealth(entity.getMaxHealth());
     }
 
-    private void applyGrowth(EntityLivingBase entityLivingBase, IAttribute attribute, double amount,
-                             int operation) {
-        IAttributeInstance att = entityLivingBase.getEntityAttribute(attribute);
-        if (att != null) {
-            double oldMax = entityLivingBase.getEntityAttribute(attribute).getBaseValue();
-            double newMax = 0;
-            amount *= growthFactor;
+    private void applyGrowth(EntityLivingBase entity, IAttribute attribute, double amount, int operation) {
+        IAttributeInstance att = entity.getEntityAttribute(attribute);
 
-            switch (operation) {
-                case 0: newMax = oldMax + amount; break;
-                case 1: newMax = oldMax * amount; break;
-                case 2: newMax = oldMax * (1 + amount); break;
-            }
-            entityLivingBase.getEntityAttribute(attribute).setBaseValue(newMax);
+        if (att == null) {
+            return;
         }
+
+        double oldValue = att.getBaseValue();
+        double scaledAmount = amount * growthFactor;
+        double newValue;
+
+        switch (operation) {
+            case 0: newValue = oldValue + scaledAmount; break;
+            case 1: newValue = oldValue * scaledAmount; break;
+            case 2: newValue = oldValue * (1 + scaledAmount); break;
+            default: return;
+        }
+        att.setBaseValue(newValue);
     }
 }

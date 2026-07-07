@@ -33,6 +33,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.fml.common.Loader;
 import org.apache.logging.log4j.Level;
 
 public final class ChampionService {
@@ -250,7 +251,7 @@ public final class ChampionService {
     private static float chance(EntityLiving entity, int tier) {
         float chance = RankManager.getRanks().get(tier).getChance();
 
-        if (Champions.isScalingHealthLoaded) {
+        if (Loader.isModLoaded("scalinghealth")) {
             chance += (float)(ChampionDifficulty.getSpawnModifier(tier) *
                     ScalingHealthAPI.getAreaDifficulty(entity.world, entity.getPosition()));
         }

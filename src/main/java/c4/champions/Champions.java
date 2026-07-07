@@ -13,7 +13,7 @@ import c4.champions.common.rank.RankManager;
 import c4.champions.common.champion.ChampionService;
 import c4.champions.integrations.scalinghealth.ChampionDifficulty;
 import c4.champions.network.NetworkHandler;
-import c4.champions.proxy.IProxy;
+import c4.champions.proxy.CommonProxy;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraft.world.storage.loot.properties.EntityPropertyManager;
@@ -35,15 +35,13 @@ public class Champions
 {
     public static final String MODID = "champions";
 
-    //Integrations
     public static boolean isGameStagesLoaded = false;
-    public static boolean isScalingHealthLoaded = false;
 
     public static Logger logger;
 
     @SidedProxy(clientSide = "c4.champions.proxy.ClientProxy",
-                serverSide = "c4.champions.proxy.ServerProxy")
-    public static IProxy proxy;
+                serverSide = "c4.champions.proxy.CommonProxy")
+    public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent evt) {
@@ -71,7 +69,6 @@ public class Champions
         }
 
         if (Loader.isModLoaded("scalinghealth")) {
-            isScalingHealthLoaded = true;
             ChampionDifficulty.loadConfigs();
         }
         RankManager.readRanksFromJson();
