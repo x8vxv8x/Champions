@@ -35,32 +35,26 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@GameRegistry.ObjectHolder(Champions.MODID)
 @Mod.EventBusSubscriber(modid = Champions.MODID)
 public class ChampionsRegistry {
 
-    @GameRegistry.ObjectHolder("jailed")
-    public static final Potion jailed = null;
+    public static final Potion jailed = new PotionJailed();
 
-    @GameRegistry.ObjectHolder("plague")
-    public static final Potion plague = null;
+    public static final Potion plague = new PotionPlague();
 
-    @GameRegistry.ObjectHolder("injured")
-    public static final Potion injured = null;
+    public static final Potion injured = new PotionInjured();
 
-    @GameRegistry.ObjectHolder("champion_egg")
-    public static final Item championEgg = null;
+    public static final Item championEgg = new ItemChampionPlacer();
 
     @SubscribeEvent
     public static void registerItem(RegistryEvent.Register<Item> evt) {
-        evt.getRegistry().register(new ItemChampionPlacer());
+        evt.getRegistry().register(championEgg);
     }
 
     @SubscribeEvent
     public static void registerPotion(RegistryEvent.Register<Potion> evt) {
-        evt.getRegistry().registerAll(new PotionJailed(), new PotionPlague(), new PotionInjured());
+        evt.getRegistry().registerAll(jailed, plague, injured);
     }
 
     @SubscribeEvent
