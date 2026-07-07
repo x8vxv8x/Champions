@@ -43,15 +43,17 @@ public class AffixPlagued extends Affix {
 
   @Override
   public void onUpdate(EntityLiving entity, Champion cap) {
+    if (entity.world.isRemote) return;
 
-    if (!entity.world.isRemote) {
+    if (entity.ticksExisted % 20 == 0) {
       List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity,
           entity.getEntityBoundingBox().grow(ConfigHandler.affix.plagued.infectRange));
 
       for (Entity entity1 : list) {
-
         if (entity1 instanceof EntityLivingBase) {
           EntityLivingBase target = (EntityLivingBase) entity1;
+
+          if (target.isPotionActive(ChampionsRegistry.plague)) continue;
 
           if (canEntityBeInfected(entity, target)) {
             target.addPotionEffect(
@@ -59,10 +61,10 @@ public class AffixPlagued extends Affix {
           }
         }
       }
+    }
 
-      if (entity.isPotionActive(PotionPlague.getInfectionPotion())) {
-        entity.removePotionEffect(PotionPlague.getInfectionPotion());
-      }
+    if (entity.isPotionActive(PotionPlague.getInfectionPotion())) {
+      entity.removePotionEffect(PotionPlague.getInfectionPotion());
     }
   }
 
