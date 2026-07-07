@@ -297,10 +297,17 @@ public final class ChampionService {
     }
 
     private static Set<String> generateAffixes(Rank rank, EntityLiving entity, String... presets) {
+        return ConfigHandler.affix.useCategories
+                ? generateAffixesByCategory(rank, entity, presets)
+                : generateAffixesFlat(rank, entity, presets);
+    }
+
+    private static Set<String> generateAffixesByCategory(Rank rank, EntityLiving entity, String... presets) {
         int tier = rank.getTier();
         Set<String> affixList = Sets.newHashSet();
         Map<AffixCategory, Set<String>> categoryMap = AffixRegistry.getCategoryMap().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> Sets.newHashSet(e.getValue())));
+        Map<AffixCategory, Integer> categoryCounts = Maps.newEnumMap(AffixCategory.class);
         Set<String> curatedPresets = Sets.newHashSet(presets);
         curatedPresets.addAll(AffixFilterManager.getPresetAffixesForEntity(entity));
 
@@ -308,11 +315,7 @@ public final class ChampionService {
             Affix affix = AffixRegistry.getAffix(id);
 
             if (affix != null && addAffixIfValid(affixList, categoryMap, affix, entity, tier, true)) {
-                Set<String> available = categoryMap.get(affix.getCategory());
-
-                if (available == null || available.isEmpty() || affix.getCategory() != AffixCategory.OFFENSE) {
-                    categoryMap.remove(affix.getCategory());
-                }
+                onAffixAdded(categoryMap, categoryCounts, affix.getCategory());
             }
         }
 
@@ -323,14 +326,45 @@ public final class ChampionService {
             Affix affix = AffixRegistry.getAffix(id);
             boolean added = affix != null && addAffixIfValid(affixList, categoryMap, affix, entity, tier, false);
 
-            if (added && category != AffixCategory.OFFENSE) {
-                categoryMap.remove(category);
+            if (added) {
+                onAffixAdded(categoryMap, categoryCounts, category);
             } else {
                 available.remove(id);
 
                 if (available.isEmpty()) {
                     categoryMap.remove(category);
                 }
+            }
+        }
+        return affixList;
+    }
+
+    private static Set<String> generateAffixesFlat(Rank rank, EntityLiving entity, String... presets) {
+        int tier = rank.getTier();
+        Set<String> affixList = Sets.newHashSet();
+        Set<String> available = AffixRegistry.getCategoryMap().values().stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+        Set<String> curatedPresets = Sets.newHashSet(presets);
+        curatedPresets.addAll(AffixFilterManager.getPresetAffixesForEntity(entity));
+
+        for (String id : curatedPresets) {
+            Affix affix = AffixRegistry.getAffix(id);
+
+            if (affix != null && addAffixIfValid(affixList, available, affix, entity, tier, true)) {
+                if (available.isEmpty()) {
+                    break;
+                }
+            }
+        }
+
+        while (!available.isEmpty() && affixList.size() < rank.getAffixes()) {
+            String id = randomElement(available);
+            Affix affix = AffixRegistry.getAffix(id);
+            boolean added = affix != null && addAffixIfValid(affixList, available, affix, entity, tier, false);
+
+            if (!added) {
+                available.remove(id);
             }
         }
         return affixList;
@@ -354,6 +388,54 @@ public final class ChampionService {
         }
         selected.add(affix.getIdentifier());
         return true;
+    }
+
+    private static boolean addAffixIfValid(Set<String> selected, Set<String> available,
+                                           Affix affix, EntityLiving entity, int tier, boolean preset) {
+        if (!available.remove(affix.getIdentifier())) {
+            return false;
+        }
+        if (!preset && (!affix.canApply(entity) || !AffixFilterManager.isValidAffix(affix, entity, tier))) {
+            return false;
+        }
+
+        for (String id : selected) {
+            if (!affix.isCompatibleWith(AffixRegistry.getAffix(id))) {
+                return false;
+            }
+        }
+        selected.add(affix.getIdentifier());
+        return true;
+    }
+
+    private static void onAffixAdded(Map<AffixCategory, Set<String>> availableByCategory,
+                                     Map<AffixCategory, Integer> categoryCounts, AffixCategory category) {
+        int count = categoryCounts.getOrDefault(category, 0) + 1;
+        categoryCounts.put(category, count);
+        Set<String> available = availableByCategory.get(category);
+
+        if (available == null || available.isEmpty() || reachedCategoryLimit(category, count)) {
+            availableByCategory.remove(category);
+        }
+    }
+
+    private static boolean reachedCategoryLimit(AffixCategory category, int count) {
+        int limit;
+
+        switch (category) {
+            case CC:
+                limit = ConfigHandler.affix.categoryLimits.cc;
+                break;
+            case OFFENSE:
+                limit = ConfigHandler.affix.categoryLimits.offense;
+                break;
+            case DEFENSE:
+                limit = ConfigHandler.affix.categoryLimits.defense;
+                break;
+            default:
+                return false;
+        }
+        return limit > 0 && count >= limit;
     }
 
     private static String randomElement(Set<String> values) {

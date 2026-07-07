@@ -112,6 +112,14 @@ public class ConfigHandler {
         @Comment("Set the maximum distance that mobs can use their targeted abilities from, 0 to disable")
         public int abilityRange = 0;
 
+        @Name("Use Categories")
+        @Comment("Set whether affix generation should use categories and category limits. If false, affixes are drawn directly from the full pool")
+        public boolean useCategories = true;
+
+        @Name("Category Limits")
+        @Comment("Settings that cap how many affixes of each category can be generated for a champion. Set to 0 or less to disable a category cap")
+        public CategoryLimits categoryLimits = new CategoryLimits();
+
         @Name("Adaptable")
         @Comment("Settings for the Adaptable affix")
         public Adaptable adaptable = new Adaptable();
@@ -171,6 +179,21 @@ public class ConfigHandler {
         @Name("Vortex")
         @Comment("Settings for the Vortex affix")
         public Vortex vortex = new Vortex();
+
+        public class CategoryLimits {
+
+            @Name("CC")
+            @Comment("Maximum number of CC affixes that can be generated for a champion, 0 or less for no limit")
+            public int cc = 1;
+
+            @Name("Offense")
+            @Comment("Maximum number of offense affixes that can be generated for a champion, 0 or less for no limit")
+            public int offense = 0;
+
+            @Name("Defense")
+            @Comment("Maximum number of defense affixes that can be generated for a champion, 0 or less for no limit")
+            public int defense = 1;
+        }
 
         public class Adaptable {
 

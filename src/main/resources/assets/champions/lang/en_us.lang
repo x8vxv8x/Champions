@@ -76,6 +76,16 @@ champions.general.affix=Affix Settings
 champions.general.affix.tooltip=Settings that affect individual affixes
 champions.general.affix.abilityrange=Maximum Ability Range
 champions.general.affix.abilityrange.tooltip=Set the maximum distance that mobs can use their targeted abilities from, 0 to disable
+champions.general.affix.usecategories=Use Categories
+champions.general.affix.usecategories.tooltip=Set whether affix generation should use categories and category limits. If false, affixes are drawn directly from the full pool
+champions.general.affix.categorylimits=Category Limits
+champions.general.affix.categorylimits.tooltip=Settings that cap how many affixes of each category can be generated for a champion
+champions.general.affix.categorylimits.cc=CC
+champions.general.affix.categorylimits.cc.tooltip=Maximum number of CC affixes that can be generated for a champion, 0 or less for no limit
+champions.general.affix.categorylimits.offense=Offense
+champions.general.affix.categorylimits.offense.tooltip=Maximum number of offense affixes that can be generated for a champion, 0 or less for no limit
+champions.general.affix.categorylimits.defense=Defense
+champions.general.affix.categorylimits.defense.tooltip=Maximum number of defense affixes that can be generated for a champion, 0 or less for no limit
 
 champions.general.affix.adaptable=Adaptable
 champions.general.affix.adaptable.tooltip=Settings for the Adaptable affix

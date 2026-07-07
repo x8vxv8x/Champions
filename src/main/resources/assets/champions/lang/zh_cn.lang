@@ -76,6 +76,16 @@ champions.general.affix=词缀设置
 champions.general.affix.tooltip=设置每个词缀的效果
 champions.general.affix.abilityrange=最大能力范围
 champions.general.affix.abilityrange.tooltip=设置怪物可以对目标使用技能的最大距离，如为 0 则禁用该功能
+champions.general.affix.usecategories=启用分类
+champions.general.affix.usecategories.tooltip=设置词缀生成时是否启用分类和类别上限；若为否，则直接从全部可用词缀中随机抽取
+champions.general.affix.categorylimits=类别上限
+champions.general.affix.categorylimits.tooltip=设置每种类别的词缀在单个强敌身上最多可生成多少个
+champions.general.affix.categorylimits.cc=控制类上限
+champions.general.affix.categorylimits.cc.tooltip=单个强敌最多可生成多少个控制类词缀，小于等于 0 表示不限
+champions.general.affix.categorylimits.offense=进攻类上限
+champions.general.affix.categorylimits.offense.tooltip=单个强敌最多可生成多少个进攻类词缀，小于等于 0 表示不限
+champions.general.affix.categorylimits.defense=防御类上限
+champions.general.affix.categorylimits.defense.tooltip=单个强敌最多可生成多少个防御类词缀，小于等于 0 表示不限
 
 champions.general.affix.adaptable=适应
 champions.general.affix.adaptable.tooltip=设置“适应”词缀
