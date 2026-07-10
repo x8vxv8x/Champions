@@ -21,6 +21,8 @@ champions.affix.adaptable=适应
 champions.affix.scrapper=重击
 champions.affix.knockback=泰坦
 champions.affix.shadow=暗影
+champions.affix.dispel=驱散
+
 
 #################
 #    Effects    #

@@ -24,6 +24,7 @@ public class Affixes {
                 new AffixScrapper(),
                 new AffixKnockback(),
                 new AffixShadow(),
+                new AffixDispel(),
                 new AffixCinder());
     }
 

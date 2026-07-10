@@ -21,6 +21,7 @@ champions.affix.adaptable=Adaptable
 champions.affix.scrapper=Scrapper
 champions.affix.knockback=Knockback
 champions.affix.shadow=Shadow
+champions.affix.dispel=Dispel
 
 #################
 #    Effects    #
