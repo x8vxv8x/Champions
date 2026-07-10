@@ -5,7 +5,6 @@ import c4.champions.common.affix.AffixCategory;
 import c4.champions.common.champion.Champion;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.DamageSource;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 public class AffixReality extends Affix {
@@ -15,17 +14,11 @@ public class AffixReality extends Affix {
     }
 
     @Override
-    public void onAttacked(EntityLiving entity, Champion cap, DamageSource source, float amount,
-                           LivingAttackEvent evt) {
-
-        if (source.isMagicDamage()) {
-            evt.setCanceled(true);
-        }
-    }
-
-    @Override
     public float onHurt(EntityLiving entity, Champion cap, DamageSource source, float amount, float newAmount,
                         LivingHurtEvent evt) {
+        if (source.isMagicDamage()) {
+            return newAmount * 0.05F;
+        }
         return newAmount * 2.0F;
     }
 }
